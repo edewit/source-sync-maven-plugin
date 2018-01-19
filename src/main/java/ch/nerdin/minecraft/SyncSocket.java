@@ -1,5 +1,6 @@
 package ch.nerdin.minecraft;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -7,12 +8,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 /**
  * Handles sync.
  */
+@WebSocket
 public class SyncSocket {
     private final List<String> toSendMessages = new ArrayList<String>();
     private final CountDownLatch closeLatch  = new CountDownLatch(1);
@@ -28,17 +31,22 @@ public class SyncSocket {
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        System.out.printf("Got connect: %s%n", session);
         try {
-            Future<Void> fut;
-
             for (String message : this.toSendMessages) {
-                fut = session.getRemote().sendStringByFuture(message);
+                Future<Void> fut = session.getRemote().sendStringByFuture(message);
                 fut.get(5, TimeUnit.SECONDS);
             }
-            session.close(StatusCode.NORMAL, "I'm done");
         } catch (Throwable t) {
             throw new RuntimeException(t);
+        }
+    }
+
+    @OnWebSocketMessage
+    public void onMessage(Session session, String message) throws IOException {
+        if ("applied".equals(message)) {
+            System.out.println("changes applied!");
+            session.disconnect();
+            closeLatch.countDown();
         }
     }
 }

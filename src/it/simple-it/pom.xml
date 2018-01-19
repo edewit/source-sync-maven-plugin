@@ -29,6 +29,7 @@
         <version>@project.version@</version>
         <configuration>
           <serverUri>ws://localhost:9191</serverUri>
+          <repository>../../..</repository>
         </configuration>
         <executions>
           <execution>

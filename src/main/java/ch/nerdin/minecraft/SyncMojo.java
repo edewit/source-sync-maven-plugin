@@ -19,7 +19,6 @@ package ch.nerdin.minecraft;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URI;
-import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -39,15 +38,18 @@ public class SyncMojo extends AbstractMojo {
     /**
      * Location of the sync server.
      */
-    @Parameter(property = "url", required = true)
+    @Parameter(required = true)
     private URI serverUri;
+
+    @Parameter(defaultValue = ".", required = true)
+    private File repository;
 
     public void execute() throws MojoExecutionException {
         WebSocketClient client = new WebSocketClient();
         SyncSocket socket = new SyncSocket();
 
         try {
-            Git git = Git.open(new File("."));
+            Git git = Git.open(repository);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             git.diff().setOutputStream(out).call();
             String diff = out.toString();

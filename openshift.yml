@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: '2017-10-31T12:17:05Z'
+  generation: 69
+  labels:
+    app: minecraft-che-test
+  name: minecraft-che-test
+  namespace: edewit-minecraft
+  resourceVersion: '314945822'
+  selfLink: /oapi/v1/namespaces/edewit-minecraft/deploymentconfigs/minecraft-che-test
+  uid: 689e4dce-be35-11e7-987b-06579ed29230
+spec:
+  replicas: 1
+  selector:
+    app: minecraft-che-test
+    deploymentconfig: minecraft-che-test
+  strategy:
+    activeDeadlineSeconds: 21600
+    recreateParams:
+      timeoutSeconds: 600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        app: minecraft-che-test
+        deploymentconfig: minecraft-che-test
+    spec:
+      containers:
+        - env:
+            - name: JAVA_OPTS
+              value: '-Xms500m -Xmx500m'
+          image: >-
+            172.30.148.65:5000/edewit-minecraft/minecraft-che-test@sha256:19a8b9d936b746e55b690f71b5a1ac204dec8021b2cbb92a82799e9fc5ef094a
+          imagePullPolicy: Always
+          name: minecraft-che-test
+          resources:
+            limits:
+              memory: 1Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - minecraft-che-test
+        from:
+          kind: ImageStreamTag
+          name: 'minecraft-che-test:latest'
+          namespace: edewit-minecraft
+        lastTriggeredImage: >-
+          172.30.148.65:5000/edewit-minecraft/minecraft-che-test@sha256:19a8b9d936b746e55b690f71b5a1ac204dec8021b2cbb92a82799e9fc5ef094a
+      type: ImageChange
+status:
+  availableReplicas: 1
+  conditions:
+    - lastTransitionTime: '2017-11-02T15:58:53Z'
+      lastUpdateTime: '2017-11-02T15:58:53Z'
+      message: Deployment config has minimum availability.
+      status: 'True'
+      type: Available
+    - lastTransitionTime: '2017-11-02T15:57:45Z'
+      lastUpdateTime: '2017-11-02T15:58:55Z'
+      message: replication controller "minecraft-che-test-31" successfully rolled out
+      reason: NewReplicationControllerAvailable
+      status: 'True'
+      type: Progressing
+  details:
+    causes:
+      - type: ConfigChange
+    message: config change
+  latestVersion: 31
+  observedGeneration: 69
+  readyReplicas: 1
+  replicas: 1
+  unavailableReplicas: 0
+  updatedReplicas: 1
+kind: Service
+metadata:
+  name: source-sync
+spec:
+  selector:
+    app: minecraft-che-test
+  ports:
+  - nodePort: 0
+    port: 7791
+    protocol: TCP
+    targetPort: 7791
+    name: sync-plugin-port

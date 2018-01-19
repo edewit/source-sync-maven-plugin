@@ -60,17 +60,21 @@ public class SyncMojo extends AbstractMojo {
             client.start();
             ClientUpgradeRequest request = new ClientUpgradeRequest();
             client.connect(socket, serverUri, request);
-        } catch (Exception e) {
-            throw new MojoExecutionException("could not sync with server due to exception", e);
-        }
 
-        if (!socket.awaitClose(20, TimeUnit.SECONDS)) {
-            throw new MojoExecutionException("could not sync, server reply timed out");
-        }
-        try {
-            client.stop();
+            if (!socket.awaitClose(20, TimeUnit.SECONDS)) {
+                throw new MojoExecutionException("could not sync, server reply timed out");
+            }
         } catch (Exception e) {
-            // Shut up.
+            if (e instanceof MojoExecutionException) {
+                throw (MojoExecutionException)e;
+            }
+            throw new MojoExecutionException("could not sync with server due to exception", e);
+        } finally {
+            try {
+                client.stop();
+            } catch (Exception e) {
+                // Shut up.
+            }
         }
     }
 }

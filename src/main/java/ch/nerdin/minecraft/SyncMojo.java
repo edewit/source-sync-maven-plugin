@@ -35,6 +35,7 @@ import org.eclipse.jgit.api.Git;
  */
 @Mojo(name = "sync", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class SyncMojo extends AbstractMojo {
+
     /**
      * Location of the sync server.
      */
@@ -44,12 +45,12 @@ public class SyncMojo extends AbstractMojo {
     @Parameter(defaultValue = ".", required = true)
     private File repository;
 
+    @Override
     public void execute() throws MojoExecutionException {
         WebSocketClient client = new WebSocketClient();
         SyncSocket socket = new SyncSocket();
 
-        try {
-            Git git = Git.open(repository);
+        try (Git git = Git.open(repository)) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             git.diff().setOutputStream(out).call();
             String diff = out.toString();
@@ -61,6 +62,7 @@ public class SyncMojo extends AbstractMojo {
             client.connect(socket, serverUri, request);
 
             socket.awaitClose(20, TimeUnit.SECONDS);
+            client.stop();
         } catch (Exception e) {
             throw new MojoExecutionException("could not sync with server", e);
         }

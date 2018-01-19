@@ -17,9 +17,9 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
  */
 @WebSocket
 public class SyncSocket {
-    private final List<String> toSendMessages = new ArrayList<String>();
-    private final CountDownLatch closeLatch  = new CountDownLatch(1);
 
+    private final List<String> toSendMessages = new ArrayList<>();
+    private final CountDownLatch closeLatch = new CountDownLatch(1);
 
     public boolean awaitClose(int duration, TimeUnit unit) throws InterruptedException {
         return this.closeLatch.await(duration, unit);
